@@ -1,0 +1,113 @@
+---
+title: "hw03-gapminder"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load}
+suppressPackageStartupMessages(library("tidyverse"))
+suppressPackageStartupMessages(library("ggplot2"))
+suppressPackageStartupMessages(library("gapminder"))
+```
+
+
+### Task 1:
+To get the max and min of gdp per continent:
+
+```{r max_min_gdp}
+summary_gdp <- gapminder %>% 
+  mutate(gdp = gdpPercap * pop) %>% 
+  group_by(continent) %>% 
+  summarize(max_gdp = max(gdp),
+            min_gdp = min(gdp))
+
+knitr::kable(summary_gdp)
+```
+
+```{r plot_max_gdp}
+summary_gdp %>% 
+  ggplot(aes(continent, max_gdp, fill = continent)) +
+  geom_bar(stat = "identity") # height of a bar will be equal to the value in df
+```
+
+Africa has the lowest maximum gdp over the years, followed by Oceania. Americas have the highest maximum gdp.
+
+```{r plot_min_gdp}
+summary_gdp %>% 
+  ggplot(aes(continent, min_gdp, fill = continent)) +
+  geom_bar(stat = "identity") # height of a bar will be equal to the value in df
+```
+
+Oceania has a much higher minimum gdp compared to the other continents; Africa has the lowest minimum gdp.
+
+### Task 2:
+How is life expectancy changing over time on different continents?
+
+```{r lifeExp_over_time}
+lifeExp_vs_time <- gapminder %>% 
+  group_by(continent, year) %>% 
+  summarize(mean_lifeExp = mean(lifeExp))
+
+knitr::kable(lifeExp_vs_time)
+```
+
+```{r plot_lifeExp_vs_time}
+lifeExp_vs_time %>% 
+  ggplot(aes(year, mean_lifeExp, colour = continent)) +
+  geom_point() +
+  facet_wrap(~continent) +
+  theme(legend.position="none") +  # removes the legend
+  ylim(0, 100) # sets the limits for the y-axis - will be the same range 0-100 for all continents
+#The first two continents don't seem to have x-axis labels; probaby because there are plots with the same axis below
+```
+
+Mean life expectancy over time is increasing in all continents. Africa has the lowest mean life expectancy; Oceania has the highest.
+
+
+### Task 3:
+Find countries with interesting stories:
+
+```{r Americas_gdp_vs_lifeExp}
+am_gdp <- gapminder %>%
+  filter(continent == "Americas") %>%
+  group_by(country) %>%
+  mutate(gdp = gdpPercap*pop) %>%
+  summarize(tm_gdp = mean(gdp, 0.1), # trim the mean by removing 20% of the gdp cases (top 10% and bottom 10%)
+            tm_lifeExp = mean(lifeExp, 0.1)) %>% 
+  arrange(tm_gdp) # from low to high
+
+knitr::kable(am_gdp)
+```
+
+```{r plot_tm_lifeExp_vs_tm_gdp}
+am_gdp %>% 
+  ggplot(aes(tm_lifeExp, tm_gdp, colour = country)) +
+  geom_point()
+```
+
+
+United States has much bigger gdp mean over the years compared to the other countries and one of the highest life expectancies.
+
+### Task 4:
+Compute a weighted mean of life expectancy, weighting by population:
+
+```{r wm_lifeExp}
+wm_df <- gapminder %>%
+  group_by(continent, year) %>% 
+  summarize(wm_lifeExp = weighted.mean(lifeExp, pop))
+
+knitr::kable(wm_df)
+```
+
+```{r plot_wm_lifeExp}
+wm_df %>% 
+  ggplot(aes(year, wm_lifeExp, colour = continent)) +
+  geom_point() +
+  facet_wrap(~continent) +
+  theme(legend.position="none")   # removes the legend
+```
+
+Weighted mean of life expectancy for Africa over the years is lower compared to the other continent; Oceania still has the highest life expectancy. In Asia, there is a dip in life expectancy in the early 1960's - something that was not seen on the previous plot of lifeExp vs year.
