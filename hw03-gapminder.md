@@ -186,12 +186,12 @@ knitr::kable(am_gdp)
 | United States       |  6.162322e+12|      73.5060|
 
 ``` r
-am_gdp %>% 
+am_gdp %>%
   ggplot(aes(tm_lifeExp, tm_gdp, colour = country)) +
   geom_point()
 ```
 
-![](hw03-gapminder_files/figure-markdown_github/plot_tm_lifeExp_vs_tm_gdp-1.png)
+![](hw03-gapminder_files/figure-markdown_github/plot_tmlifeExp_vs_tmgdp-1.png)
 
 United States has much bigger gdp mean over the years compared to the other countries and one of the highest life expectancies.
 

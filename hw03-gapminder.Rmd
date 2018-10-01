@@ -82,8 +82,8 @@ am_gdp <- gapminder %>%
 knitr::kable(am_gdp)
 ```
 
-```{r plot_tm_lifeExp_vs_tm_gdp}
-am_gdp %>% 
+```{r plot_tmlifeExp_vs_tmgdp}
+am_gdp %>%
   ggplot(aes(tm_lifeExp, tm_gdp, colour = country)) +
   geom_point()
 ```
